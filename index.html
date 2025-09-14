@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Labs AI - Enhanced with Real-time News</title>
+    <style>
+        :root {
+            --primary: #7e22ce;
+            --secondary: #3b82f6;
+            --accent: #06b6d4;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.12);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            line-height: 1.6;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        select, button {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin: auto;
+            max-width: 600px;
+        }
+
+        .welcome-message h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-message p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: white;
+        }
+
+        .ai-message h3, .ai-message h4 {
+            margin: 1rem 0 0.5rem 0;
+            color: var(--accent);
+        }
+
+        .ai-message p {
+            margin-bottom: 0.8rem;
+        }
+
+        .ai-message ul, .ai-message ol {
+            margin: 0.5rem 0 0.8rem 1.5rem;
+        }
+
+        .ai-message li {
+            margin-bottom: 0.3rem;
+        }
+
+        .news-article {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--secondary);
+            padding: 0.8rem;
+            margin: 0.8rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .news-title {
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--accent);
+        }
+
+        .news-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.4rem;
+        }
+
+        .news-source {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .real-time-badge {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        #input-container {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.5rem;
+            align-items: end;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            resize: none;
+            min-height: 40px;
+            font-size: 1rem;
+        }
+
+        #send-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        #send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: flex;
+            padding: 0.5rem;
+            gap: 0.3rem;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.8rem;
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            .welcome-message h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">QUANTUM LABS AI</div>
+        <div class="controls">
+            <select id="model-selector">
+                <option value="mistral-small-latest" selected>Mistral Small</option>
+                <option value="mistral-large-latest">Mistral Large</option>
+            </select>
+            <button id="theme-toggle">🌙</button>
+        </div>
+    </div>
+
+    <!-- Chat History Display -->
+    <div id="chat-container">
+        <div class="welcome-message">
+            <h2>QUANTUM LABS AI WITH REAL-TIME NEWS</h2>
+            <p>Now enhanced with NewsAPI integration for up-to-date information</p>
+            <p>Ask me about current events, news, or anything else, and I'll provide well-structured responses with the latest information.</p>
+        </div>
+    </div>
+
+    <!-- User Input Area -->
+    <div id="input-container">
+        <textarea id="user-input" placeholder="Ask about current events, news, or anything else..." rows="1"></textarea>
+        <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const modelSelector = document.getElementById('model-selector');
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const welcomeMessage = document.querySelector('.welcome-message');
+
+        // API Keys
+        const MISTRAL_API_KEY = 'nqTpixtZsquyg3HMY0flF5BrVwEBT83j';
+        const NEWS_API_KEY = 'fa8b054b07374636a49f2f85ffe10558';
+
+        // State
+        let currentModel = 'mistral-small-latest';
+        let conversationHistory = [];
+
+        // Initialize
+        function initialize() {
+            // Check for saved preferences
+            const savedModel = localStorage.getItem('mistral-model');
+            if (savedModel) {
+                modelSelector.value = savedModel;
+                currentModel = savedModel;
+            }
+
+            // Set up event listeners
+            setupEventListeners();
+
+            // Add welcome message
+            addMessage("Hello! I'm Quantum Labs AI with real-time news integration. I can now fetch the latest news and information for you. How can I assist you today?", 'ai');
+        }
+
+        function setupEventListeners() {
+            // Theme toggle
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('light-mode');
+                themeToggle.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
+                localStorage.setItem('light-mode', document.body.classList.contains('light-mode'));
+            });
+
+            // Check for saved theme preference
+            if (localStorage.getItem('light-mode') === 'true') {
+                document.body.classList.add('light-mode');
+                themeToggle.textContent = '🌙';
+            }
+
+            // Auto-resize textarea
+            userInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+                
+                if (welcomeMessage && this.value.trim().length > 0) {
+                    welcomeMessage.style.display = 'none';
+                }
+            });
+
+            // Model selection
+            modelSelector.addEventListener('change', () => {
+                currentModel = modelSelector.value;
+                localStorage.setItem('mistral-model', currentModel);
+            });
+
+            // Send message
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender + '-message');
+            messageDiv.innerHTML = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return messageDiv;
+        }
+
+        function showTypingIndicator() {
+            const indicatorDiv = document.createElement('div');
+            indicatorDiv.classList.add('message', 'ai-message', 'typing-indicator');
+            indicatorDiv.id = 'typing-indicator';
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('typing-dot');
+                indicatorDiv.appendChild(dot);
+            }
+            
+            chatContainer.appendChild(indicatorDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Check if a query is about current events/news
+        function isNewsQuery(message) {
+            const newsKeywords = [
+                'news', 'current', 'recent', 'today', 'latest', 'update', 'headlines',
+                'breaking', 'event', 'happening', 'now', '2023', '2024', 'this year',
+                'this month', 'this week', 'recently'
+            ];
+            
+            return newsKeywords.some(keyword => 
+                message.toLowerCase().includes(keyword.toLowerCase())
+            );
+        }
+
+        // Fetch news from NewsAPI
+        async function fetchNews(query = 'latest news') {
+            try {
+                // Try to fetch from NewsAPI first
+                const response = await fetch(`https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&pageSize=5&apiKey=${NEWS_API_KEY}`);
+                
+                if (!response.ok) {
+                    throw new Error('NewsAPI request failed');
+                }
+                
+                const data = await response.json();
+                
+                if (data.articles && data.articles.length > 0) {
+                    return data.articles;
+                } else {
+                    // Fallback to top headlines if no results
+                    const headlinesResponse = await fetch(`https://newsapi.org/v2/top-headlines?country=us&pageSize=5&apiKey=${NEWS_API_KEY}`);
+                    const headlinesData = await headlinesResponse.json();
+                    return headlinesData.articles || [];
+                }
+            } catch (error) {
+                console.error('Error fetching news:', error);
+                return [];
+            }
+        }
+
+        // Format news articles for display
+        function formatNewsArticles(articles) {
+            if (!articles || articles.length === 0) {
+                return '<p>No recent news articles found.</p>';
+            }
+            
+            let html = '<h4>📰 Latest News</h4>';
+            
+            articles.slice(0, 3).forEach(article => {
+                html += `
+                    <div class="news-article">
+                        <div class="news-title">${article.title}</div>
+                        <div class="news-description">${article.description || 'No description available'}</div>
+                        <div class="news-source">Source: ${article.source.name} | ${new Date(article.publishedAt).toLocaleDateString()}</div>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+
+        // Enhanced prompt for better formatting and real-time knowledge
+        function enhancePrompt(userMessage, newsResults = null) {
+            const currentDate = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            let prompt = `Current date: ${currentDate}. 
+            
+Please provide a well-structured response with proper paragraph breaks, headings where appropriate, and clear organization.
+
+Format your response using these guidelines:
+- Use line breaks between paragraphs
+- Use bullet points for lists
+- Use headings for main sections
+- Bold important terms using **asterisks**
+- Provide up-to-date information when possible`;
+
+            if (newsResults && newsResults.length > 0) {
+                prompt += `\n\nHere is some recent news information that might be relevant:`;
+                newsResults.slice(0, 2).forEach(article => {
+                    prompt += `\n- ${article.title} (${new Date(article.publishedAt).toLocaleDateString()})`;
+                });
+            }
+
+            prompt += `\n\nUser question: ${userMessage}`;
+            
+            return prompt;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            sendBtn.disabled = true;
+
+            addMessage(message, 'user');
+            showTypingIndicator();
+
+            try {
+                let newsResults = [];
+                
+                // Check if this is a news-related query
+                if (isNewsQuery(message)) {
+                    newsResults = await fetchNews(message);
+                }
+                
+                // Remove typing indicator
+                removeTypingIndicator();
+                
+                // Prepare the enhanced prompt
+                const enhancedPrompt = enhancePrompt(message, newsResults);
+                
+                // Call Mistral API
+                const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${MISTRAL_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: currentModel,
+                        messages: [{ role: 'user', content: enhancedPrompt }],
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API Error: ${response.status} - ${errorData.error?.message || response.statusText}`);
+                }
+
+                const data = await response.json();
+                let aiResponse = data.choices[0].message.content;
+                
+                // Add news articles to response if available
+                if (newsResults.length > 0) {
+                    aiResponse += `\n\n${formatNewsArticles(newsResults)}`;
+                }
+                
+                addMessage(aiResponse, 'ai');
+
+            } catch (error) {
+                removeTypingIndicator();
+                
+                let errorMessage = "Error: ";
+                
+                if (error.message.includes('401')) {
+                    errorMessage += "API authentication failed. Please check your API keys.";
+                } else if (error.message.includes('429')) {
+                    errorMessage += "Rate limit exceeded. Please wait.";
+                } else {
+                    errorMessage += error.message;
+                }
+
+                addMessage(errorMessage, 'ai');
+                console.error("Error:", error);
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        // Initialize the app
+        initialize();
+    </script>
+</body>
+</html>
